@@ -55,6 +55,14 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </enable_product_view>
+                        <cache_life_time>
+                            <label>Cache Life Time</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </cache_life_time>
                     </fields>
                 </cacheobserver>
             </groups>

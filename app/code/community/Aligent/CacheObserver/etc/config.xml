@@ -42,6 +42,7 @@
                 <enable_category_view>1</enable_category_view>
                 <enable_layer_view>1</enable_layer_view>
                 <enable_product_view>1</enable_product_view>
+                <cache_life_time>14400</cache_life_time>
             </cacheobserver>
         </system>
     </default>

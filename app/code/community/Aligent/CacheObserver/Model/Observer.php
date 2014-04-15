@@ -4,7 +4,6 @@
  * @package    Aligent_CacheObserver
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-
 /*
  * Observer class which implements caching for blocks without modifying the blocks
  * themselves.  Based on code from www.jewelsboutique.com/news/systems/magento-performance-optimization-continued-custom-block-cache-in-magento.html
@@ -12,6 +11,34 @@
 
 class Aligent_CacheObserver_Model_Observer
 {
+    /**
+     * @var Aligent_CacheObserver_Helper_Data
+     */
+    protected $_helper = null;
+
+    /**
+     * @param Aligent_CacheObserver_Helper_Data $helper
+     */
+    public function __construct($helper = null)
+    {
+        if (!empty($helper)) {
+            $this->_helper = $helper;
+        }
+    }
+
+    /**
+     * @return Aligent_CacheObserver_Helper_Data
+     */
+    public function getHelper()
+    {
+        if (!$this->_helper) {
+            // @codeCoverageIgnoreStart
+            $this->_helper = Mage::helper('cacheobserver');
+        }
+        // @codeCoverageIgnoreEnd
+        return $this->_helper;
+    }
+
     // TODO: Make this to be configurable at Admin Panel
     const CUSTOM_CACHE_LIFETIME = 14400; // 4 hours
 
