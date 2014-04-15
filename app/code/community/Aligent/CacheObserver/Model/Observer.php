@@ -171,7 +171,7 @@ class Aligent_CacheObserver_Model_Observer
             } else {
                 $iProductId = Mage::registry('orig_product_id') ? Mage::registry('orig_product_id') : Mage::app()->getRequest()->getParam('id');
             }
-            $vPageParamKey = $this->getParamKey(self::PAGE_VAR);
+            $vPageParamKey = $this->_getParamKey(self::PAGE_VAR);
             $vAlias        = $block->getNameInLayout();
             $block->setData('cache_lifetime', self::CUSTOM_CACHE_LIFETIME);
             $block->setData('cache_key', 'catalog_product_abstractview_product_' . $iProductId . '_' . $vPageParamKey . (Mage::getSingleton('customer/session')->isLoggedIn() ? '_loggedin' : '_loggedout') . '_store_' . Mage::app()->getStore()->getId() . '_' . Mage::app()->getStore()->getCurrentCurrencyCode() . '_' . $vAlias);
@@ -210,7 +210,7 @@ class Aligent_CacheObserver_Model_Observer
      * Creates a Key from the request param. This key is used
      * for creating unique Cache Key, and Cache Tag
      */
-    protected function getParamKey($vParam)
+    protected function _getParamKey($vParam)
     {
         $vParamValue = Mage::app()->getRequest()->getParam($vParam, false);
         $vParamKey   = $vParamValue ? $vParam . '_' . $vParamValue . '_' : '';
@@ -224,7 +224,7 @@ class Aligent_CacheObserver_Model_Observer
      */
     protected function getReviewToolBarKey()
     {
-        $vReviewToolBarKey = $this->getParamKey(self::PAGE_VAR) . $this->getParamKey(self::LIMIT_VAR);
+        $vReviewToolBarKey = $this->_getParamKey(self::PAGE_VAR) . $this->_getParamKey(self::LIMIT_VAR);
         return $vReviewToolBarKey;
     }
 
