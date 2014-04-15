@@ -51,9 +51,9 @@ class Aligent_CacheObserver_Model_Observer
     const LIMIT_VAR            = 'limit';
 
     // The non-CMS Block you want to cache
-    private $cacheableBlocks = array();
+    protected $cacheableBlocks = array();
 
-    private $aNeverCacheBlocks = array(
+    protected $aNeverCacheBlocks = array(
         'Mage_Catalog_Block_Product_Compare_Abstract',
         'Mage_Wishlist_Block_Abstract',
     );
@@ -192,7 +192,7 @@ class Aligent_CacheObserver_Model_Observer
      * Creates a Key from the request param. This key is used
      * for creating unique Cache Key, and Cache Tag
      */
-    private function getParamKey($vParam)
+    protected function getParamKey($vParam)
     {
         $vParamValue = Mage::app()->getRequest()->getParam($vParam, false);
         $vParamKey   = $vParamValue ? $vParam . '_' . $vParamValue . '_' : '';
@@ -204,13 +204,13 @@ class Aligent_CacheObserver_Model_Observer
      * This creates a Key for the Review List ToolBar based on params Page:P
      * and Review Limit:limit.
      */
-    private function getReviewToolBarKey()
+    protected function getReviewToolBarKey()
     {
         $vReviewToolBarKey = $this->getParamKey(self::PAGE_VAR) . $this->getParamKey(self::LIMIT_VAR);
         return $vReviewToolBarKey;
     }
 
-    private function _generateCategoryCacheKey(Varien_Event_Observer $observer, $sKey)
+    protected function _generateCategoryCacheKey(Varien_Event_Observer $observer, $sKey)
     {
 
         $catId  = Mage::app()->getRequest()->getParam('id');
