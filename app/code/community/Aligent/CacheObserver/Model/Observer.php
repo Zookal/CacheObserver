@@ -11,6 +11,14 @@
 
 class Aligent_CacheObserver_Model_Observer
 {
+
+    /**
+     * Application instance
+     *
+     * @var Mage_Core_Model_App
+     */
+    protected $_app = null;
+
     /**
      * @var Aligent_CacheObserver_Helper_Data
      */
@@ -18,12 +26,26 @@ class Aligent_CacheObserver_Model_Observer
 
     /**
      * @param Aligent_CacheObserver_Helper_Data $helper
+     * @param Mage_Core_Model_App               $app
      */
-    public function __construct($helper = null)
+    public function __construct($helper = null, $app = null)
     {
         if (!empty($helper)) {
             $this->_helper = $helper;
         }
+        if (!empty($app)) {
+            $this->_app = $app;
+        }
+    }
+
+    /**
+     * Retrieve application instance
+     *
+     * @return Mage_Core_Model_App
+     */
+    protected function _getApp()
+    {
+        return null === $this->_app ? Mage::app() : $this->_app;
     }
 
     /**
@@ -68,7 +90,7 @@ class Aligent_CacheObserver_Model_Observer
      */
     protected function _isGlobalEnabled(Mage_Core_Block_Abstract $block)
     {
-        if ('add' === Mage::app()->getRequest()->getActionName()) {
+        if ('add' === $this->_getApp()->getRequest()->getActionName()) {
             return false;
         }
         foreach ($this->_neverCacheBlocks as $vNeverCacheBlockName) {
@@ -95,8 +117,8 @@ class Aligent_CacheObserver_Model_Observer
         $class = get_class($block);
         if ($block instanceof Mage_Cms_Block_Block && $block->getBlockId() && Mage::getStoreConfig(self::ENABLE_CMS_BLOCKS)) {
             $block->setData('cache_lifetime', self::CUSTOM_CACHE_LIFETIME);
-            $key = 'cms_block_' . $block->getBlockId() . '_store_' . Mage::app()->getStore()->getId();
-            if (Mage::app()->getStore()->isCurrentlySecure()) {
+            $key = 'cms_block_' . $block->getBlockId() . '_store_' . $this->_getApp()->getStore()->getId();
+            if ($this->_getApp()->getStore()->isCurrentlySecure()) {
                 $key = "secure_" . $key;
             }
             $block->setData('cache_key', $key);
@@ -105,8 +127,8 @@ class Aligent_CacheObserver_Model_Observer
             ));
         } elseif ($block instanceof Mage_Cms_Block_Page && $block->getPage()->getIdentifier() && Mage::getStoreConfig(self::ENABLE_CMS_PAGES)) {
             $block->setData('cache_lifetime', self::CUSTOM_CACHE_LIFETIME);
-            $key = 'cms_page_' . $block->getPage()->getIdentifier() . '_store_' . Mage::app()->getStore()->getId();
-            if (Mage::app()->getStore()->isCurrentlySecure()) {
+            $key = 'cms_page_' . $block->getPage()->getIdentifier() . '_store_' . $this->_getApp()->getStore()->getId();
+            if ($this->_getApp()->getStore()->isCurrentlySecure()) {
                 $key = "secure_" . $key;
             }
             $block->setData('cache_key', $key);
@@ -114,37 +136,37 @@ class Aligent_CacheObserver_Model_Observer
                 Mage_Cms_Model_Page::CACHE_TAG . '_' . $block->getPage()->getId()
             ));
         } elseif ($block instanceof Mage_Review_Block_Product_View_List && Mage::getStoreConfig(self::ENABLE_PRODUCT_VIEW)) {
-            $iProductId        = Mage::registry('orig_product_id') ? Mage::registry('orig_product_id') : Mage::app()->getRequest()->getParam('id');
+            $iProductId        = Mage::registry('orig_product_id') ? Mage::registry('orig_product_id') : $this->_getApp()->getRequest()->getParam('id');
             $vAlias            = $block->getNameInLayout();
             $vReviewToolBarKey = $this->getReviewToolBarKey();
             $block->setData('cache_lifetime', self::CUSTOM_CACHE_LIFETIME);
-            $block->setData('cache_key', 'review_product_view_list_' . $iProductId . (Mage::getSingleton('customer/session')->isLoggedIn() ? '_loggedin' : '_loggedout') . '_store_' . Mage::app()->getStore()->getId() . '_' . Mage::app()->getStore()->getCurrentCurrencyCode() . '_' . $vReviewToolBarKey . $vAlias);
+            $block->setData('cache_key', 'review_product_view_list_' . $iProductId . (Mage::getSingleton('customer/session')->isLoggedIn() ? '_loggedin' : '_loggedout') . '_store_' . $this->_getApp()->getStore()->getId() . '_' . $this->_getApp()->getStore()->getCurrentCurrencyCode() . '_' . $vReviewToolBarKey . $vAlias);
             $block->setData('cache_tags', array(Mage_Core_Block_Abstract::CACHE_GROUP, Mage_Core_Model_App::CACHE_TAG, Mage_Core_Model_Store::CACHE_TAG,
                 Mage_Catalog_Model_Product::CACHE_TAG . '_' . $iProductId
             ));
         } elseif ($block instanceof Mage_Review_Block_Product_View && Mage::getStoreConfig(self::ENABLE_PRODUCT_VIEW)) {
-            $iProductId = Mage::registry('orig_product_id') ? Mage::registry('orig_product_id') : Mage::app()->getRequest()->getParam('id');
+            $iProductId = Mage::registry('orig_product_id') ? Mage::registry('orig_product_id') : $this->_getApp()->getRequest()->getParam('id');
             $vAlias     = $block->getNameInLayout();
             $block->setData('cache_lifetime', self::CUSTOM_CACHE_LIFETIME);
-            $block->setData('cache_key', 'review_product_view_' . $iProductId . (Mage::getSingleton('customer/session')->isLoggedIn() ? '_loggedin' : '_loggedout') . '_store_' . Mage::app()->getStore()->getId() . '_' . Mage::app()->getStore()->getCurrentCurrencyCode() . '_' . $vAlias);
+            $block->setData('cache_key', 'review_product_view_' . $iProductId . (Mage::getSingleton('customer/session')->isLoggedIn() ? '_loggedin' : '_loggedout') . '_store_' . $this->_getApp()->getStore()->getId() . '_' . $this->_getApp()->getStore()->getCurrentCurrencyCode() . '_' . $vAlias);
             $block->setData('cache_tags', array(Mage_Core_Block_Abstract::CACHE_GROUP, Mage_Core_Model_App::CACHE_TAG, Mage_Core_Model_Store::CACHE_TAG,
                 Mage_Catalog_Model_Product::CACHE_TAG . '_' . $iProductId
             ));
         } elseif ($block instanceof Mage_Catalog_Block_Product_View && Mage::getStoreConfig(self::ENABLE_PRODUCT_VIEW)) {
-            $iProductId        = Mage::registry('orig_product_id') ? Mage::registry('orig_product_id') : Mage::app()->getRequest()->getParam('id');
+            $iProductId        = Mage::registry('orig_product_id') ? Mage::registry('orig_product_id') : $this->_getApp()->getRequest()->getParam('id');
             $vAlias            = $block->getNameInLayout();
             $vReviewToolBarKey = $this->getReviewToolBarKey();
             $block->setData('cache_lifetime', self::CUSTOM_CACHE_LIFETIME);
-            $block->setData('cache_key', 'catalog_product_page_' . $iProductId . (Mage::getSingleton('customer/session')->isLoggedIn() ? '_loggedin' : '_loggedout') . '_store_' . Mage::app()->getStore()->getId() . '_' . Mage::app()->getStore()->getCurrentCurrencyCode() . '_' . $vReviewToolBarKey . $vAlias);
+            $block->setData('cache_key', 'catalog_product_page_' . $iProductId . (Mage::getSingleton('customer/session')->isLoggedIn() ? '_loggedin' : '_loggedout') . '_store_' . $this->_getApp()->getStore()->getId() . '_' . $this->_getApp()->getStore()->getCurrentCurrencyCode() . '_' . $vReviewToolBarKey . $vAlias);
             $block->setData('cache_tags', array(Mage_Core_Block_Abstract::CACHE_GROUP, Mage_Core_Model_App::CACHE_TAG, Mage_Core_Model_Store::CACHE_TAG,
                 Mage_Catalog_Model_Product::CACHE_TAG . '_' . $iProductId
             ));
         } elseif ($block instanceof Mage_Catalog_Block_Product_Price && Mage::getStoreConfig(self::ENABLE_PRODUCT_VIEW)) {
-            $iProductId = $block->getProduct() ? $block->getProduct()->getId() : Mage::app()->getRequest()->getParam('id');
+            $iProductId = $block->getProduct() ? $block->getProduct()->getId() : $this->_getApp()->getRequest()->getParam('id');
             $vAlias     = $block->getNameInLayout();
             $vTemplate  = $block->getTemplate();
             $block->setData('cache_lifetime', self::CUSTOM_CACHE_LIFETIME);
-            $block->setData('cache_key', 'catalog_product_price_id_' . $iProductId . (Mage::getSingleton('customer/session')->isLoggedIn() ? '_loggedin' : '_loggedout') . '_store_' . Mage::app()->getStore()->getId() . '_' . Mage::app()->getStore()->getCurrentCurrencyCode() . '_' . $vAlias . '_template_' . $vTemplate);
+            $block->setData('cache_key', 'catalog_product_price_id_' . $iProductId . (Mage::getSingleton('customer/session')->isLoggedIn() ? '_loggedin' : '_loggedout') . '_store_' . $this->_getApp()->getStore()->getId() . '_' . $this->_getApp()->getStore()->getCurrentCurrencyCode() . '_' . $vAlias . '_template_' . $vTemplate);
             $block->setData('cache_tags', array(Mage_Core_Block_Abstract::CACHE_GROUP, Mage_Core_Model_App::CACHE_TAG, Mage_Core_Model_Store::CACHE_TAG,
                 Mage_Catalog_Model_Product::CACHE_TAG . '_' . $iProductId
             ));
@@ -153,13 +175,13 @@ class Aligent_CacheObserver_Model_Observer
             $block->setData('cache_lifetime', self::CUSTOM_CACHE_LIFETIME);
             $block->setData('cache_key', 'catalog_category_list_' . $sCachekey);
             $block->setData('cache_tags', array(Mage_Core_Block_Abstract::CACHE_GROUP, Mage_Core_Model_App::CACHE_TAG, Mage_Core_Model_Store::CACHE_TAG,
-                Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG . '_' . Mage::app()->getRequest()->getParam('id')
+                Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG . '_' . $this->_getApp()->getRequest()->getParam('id')
             ));
         } elseif ($block instanceof Enterprise_TargetRule_Block_Catalog_Product_Item && Mage::getStoreConfig(self::ENABLE_PRODUCT_VIEW)) {
             if ($block->getProduct() !== null) {
                 $iProductId = $block->getProduct()->getId();
             } else {
-                $iProductId = Mage::registry('orig_product_id') ? Mage::registry('orig_product_id') : Mage::app()->getRequest()->getParam('id');
+                $iProductId = Mage::registry('orig_product_id') ? Mage::registry('orig_product_id') : $this->_getApp()->getRequest()->getParam('id');
             }
             $block->setData('cache_lifetime', self::CUSTOM_CACHE_LIFETIME);
             $block->setData('cache_tags', array(Mage_Core_Block_Abstract::CACHE_GROUP, Mage_Core_Model_App::CACHE_TAG, Mage_Core_Model_Store::CACHE_TAG,
@@ -169,12 +191,12 @@ class Aligent_CacheObserver_Model_Observer
             if ($block->getProduct() !== null) {
                 $iProductId = $block->getProduct()->getId();
             } else {
-                $iProductId = Mage::registry('orig_product_id') ? Mage::registry('orig_product_id') : Mage::app()->getRequest()->getParam('id');
+                $iProductId = Mage::registry('orig_product_id') ? Mage::registry('orig_product_id') : $this->_getApp()->getRequest()->getParam('id');
             }
             $vPageParamKey = $this->_getParamKey(self::PAGE_VAR);
             $vAlias        = $block->getNameInLayout();
             $block->setData('cache_lifetime', self::CUSTOM_CACHE_LIFETIME);
-            $block->setData('cache_key', 'catalog_product_abstractview_product_' . $iProductId . '_' . $vPageParamKey . (Mage::getSingleton('customer/session')->isLoggedIn() ? '_loggedin' : '_loggedout') . '_store_' . Mage::app()->getStore()->getId() . '_' . Mage::app()->getStore()->getCurrentCurrencyCode() . '_' . $vAlias);
+            $block->setData('cache_key', 'catalog_product_abstractview_product_' . $iProductId . '_' . $vPageParamKey . (Mage::getSingleton('customer/session')->isLoggedIn() ? '_loggedin' : '_loggedout') . '_store_' . $this->_getApp()->getStore()->getId() . '_' . $this->_getApp()->getStore()->getCurrentCurrencyCode() . '_' . $vAlias);
             $block->setData('cache_tags', array(Mage_Core_Block_Abstract::CACHE_GROUP, Mage_Core_Model_App::CACHE_TAG, Mage_Core_Model_Store::CACHE_TAG,
                 Mage_Catalog_Model_Product::CACHE_TAG . '_' . $iProductId
             ));
@@ -183,14 +205,14 @@ class Aligent_CacheObserver_Model_Observer
             $block->setData('cache_lifetime', self::CUSTOM_CACHE_LIFETIME);
             $block->setData('cache_key', 'catalog_category_view_' . $sCachekey);
             $block->setData('cache_tags', array(Mage_Core_Block_Abstract::CACHE_GROUP, Mage_Core_Model_App::CACHE_TAG, Mage_Core_Model_Store::CACHE_TAG,
-                Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG . '_' . Mage::app()->getRequest()->getParam('id')
+                Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG . '_' . $this->_getApp()->getRequest()->getParam('id')
             ));
         } elseif ($block instanceof Mage_Catalog_Block_Layer_View && Mage::getStoreConfig(self::ENABLE_LAYER_VIEW)) {
             $sCachekey = $this->_generateCategoryCacheKey($observer, 'catalog_category_layered_nav_view');
             $block->setData('cache_lifetime', self::CUSTOM_CACHE_LIFETIME);
             $block->setData('cache_key', 'catalog_category_layered_nav_view_' . $sCachekey);
             $block->setData('cache_tags', array(Mage_Core_Block_Abstract::CACHE_GROUP, Mage_Core_Model_App::CACHE_TAG, Mage_Core_Model_Store::CACHE_TAG,
-                Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG . '_' . Mage::app()->getRequest()->getParam('id')
+                Mage_Catalog_Model_Product::CACHE_TAG, Mage_Catalog_Model_Category::CACHE_TAG . '_' . $this->_getApp()->getRequest()->getParam('id')
             ));
         } elseif ($block instanceof Mage_Page_Block_Html_Footer) {
             $aCacheKeyInfo   = $block->getCacheKeyInfo();
@@ -198,7 +220,7 @@ class Aligent_CacheObserver_Model_Observer
             $block->setCacheKey(implode('_', array_values($aCacheKeyInfo)));
         } elseif (in_array($class, $this->cacheableBlocks)) {
             $block->setData('cache_lifetime', self::CUSTOM_CACHE_LIFETIME);
-            $block->setData('cache_key', 'block_' . $class . '_store_' . Mage::app()->getStore()->getId());
+            $block->setData('cache_key', 'block_' . $class . '_store_' . $this->_getApp()->getStore()->getId());
             $block->setData('cache_tags', array(Mage_Core_Block_Abstract::CACHE_GROUP, Mage_Core_Model_App::CACHE_TAG, Mage_Core_Model_Store::CACHE_TAG));
         }
     }
@@ -212,7 +234,7 @@ class Aligent_CacheObserver_Model_Observer
      */
     protected function _getParamKey($vParam)
     {
-        $vParamValue = Mage::app()->getRequest()->getParam($vParam, false);
+        $vParamValue = $this->_getApp()->getRequest()->getParam($vParam, false);
         $vParamKey   = $vParamValue ? $vParam . '_' . $vParamValue . '_' : '';
         return $vParamKey;
     }
@@ -231,8 +253,8 @@ class Aligent_CacheObserver_Model_Observer
     protected function _generateCategoryCacheKey(Varien_Event_Observer $observer, $sKey)
     {
 
-        $catId  = Mage::app()->getRequest()->getParam('id');
-        $params = Mage::app()->getRequest()->getParams();
+        $catId  = $this->_getApp()->getRequest()->getParam('id');
+        $params = $this->_getApp()->getRequest()->getParams();
         $logged = Mage::getSingleton('customer/session')->isLoggedIn() ? 'loggedin' : 'loggedout';
         if (!isset($params['limit'])) {
             $catalogSession = Mage::getSingleton('catalog/session');
@@ -257,7 +279,7 @@ class Aligent_CacheObserver_Model_Observer
             $filters .= "_" . $key . ":" . $value;
         }
         $sTemplate = $observer->getBlock()->getTemplate();
-        $cacheKey  = "store_" . Mage::app()->getStore()->getId() . "_{$sKey}_id_" . $catId . '_' . $filters . '_' . $sTemplate . '_' . Mage::app()->getStore()->getCurrentCurrencyCode() . '_' . $logged;
+        $cacheKey  = "store_" . $this->_getApp()->getStore()->getId() . "_{$sKey}_id_" . $catId . '_' . $filters . '_' . $sTemplate . '_' . $this->_getApp()->getStore()->getCurrentCurrencyCode() . '_' . $logged;
         $cacheKey  = md5($cacheKey);
         return $cacheKey;
     }
